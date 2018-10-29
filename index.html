@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>carousel_banner</title>
+<link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+<link rel="stylesheet" href="https://meyerweb.com/eric/tools/css/reset/reset200802.css">
+<style>
+.b_1,
+.b_2,
+.b_3 {
+    width: 300px;
+    height: 100px;
+    display: block;
+}
+.b_1 {
+    background: pink;
+}
+.b_2 {
+    background: green;
+}
+.b_3 {
+    background: red;
+}
+</style>
+<style>
+    .carousel_banner_content {
+        transition: all .3s ease-in;
+    }
+    .carousel_banner_content.fade {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+    }
+    .carousel_banner_content.fade_in {
+        z-index: 1;
+        opacity: 1;
+    }
+    .carousel_banner_content.slide {
+        position: absolute;
+        top: 0;
+    }
+    .carousel_banner_dot_container {
+        z-index: 99;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        height: 1em;
+        overflow: auto;
+    }
+    .carousel_banner_dot_container:after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+    .carousel_banner_dot {
+        position: relative;
+        width: 1em;
+        height: 1em;
+        float: left;
+    }
+    .carousel_banner_dot:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: .5em;
+        height: .5em;
+        margin: auto;
+        border-radius: 50%;
+        background: #aaa;
+    }
+    .carousel_banner_dot.focus:before {
+        background: #0077ff;
+    }
+</style>
+<script>
+(function () {
+    function carouselBanner(option) {
+        if (!option.select) {
+            console.error('carouselBanner: not set DOM');
+            return;
+        }
+
+        var dom = option.select,
+            time = option.time || 3000,
+            width = option.width || '320px',
+            height = option.height || '50px',
+            type = option.type || 'fade',
+            source = dom.querySelectorAll('.carousel_banner_content');
+
+        dom.style = 'overflow:hidden;' +
+            'position:relative;' +
+            'width:' + width + ';' +
+            'height:' + height + ';';
+
+        if (!source.length) {
+            console.error('carouselBanner: not set carousel_banner_content class');
+            return;
+        }
+
+        var data = dom2Data(source, {
+            'node' : 'a',
+            'attributes': ['href', 'className', 'dataset'],
+            'children': {
+                'node' : 'img',
+                'attributes': ['src', 'srcset', 'className'],
+            }
+        });
+        var vDom = data2Dom(data);
+
+        dom.innerHTML = '';
+
+        initDot();
+
+        if (type === 'slide') {
+            slide();
+        } else {
+            fade();
+        }
+
+        function initDot() {
+            var dotContainer =  document.createElement('div');
+            dotContainer.setAttribute('class', 'carousel_banner_dot_container')
+            dotContainer.style = 'width:' + data.length + 'em;';
+            for (var i = 0; i < data.length; i++) {
+                var dot = document.createElement('div');
+                dot.setAttribute('class', 'carousel_banner_dot');
+                if (i === 0) {
+                    dot.setAttribute('class', 'carousel_banner_dot focus');
+                }
+                dotContainer.appendChild(dot);
+            }
+            dom.appendChild(dotContainer);
+        }
+
+        function fade() {
+
+            for (var i = 0; i < vDom.length; i++) {
+                dom.appendChild(vDom[i]);
+            }
+            var content = dom.querySelectorAll('.carousel_banner_content');
+            for (var k = 0; k < content.length; k++) {
+                if (k === 0) {
+                    content[k].classList.add('fade_in');
+                }
+                content[k].classList.add('fade');
+            }
+
+            var counter = 0,
+                dots = document.querySelectorAll('.carousel_banner_dot'),
+                intervalID;
+
+            intervalManager(true, fadeTimer, time);
+
+            dom.addEventListener('mouseenter', function () {
+                intervalManager(false);
+            });
+
+            dom.addEventListener('mouseleave', function () {
+                intervalManager(true, fadeTimer, time);
+            });
+
+            function fadeTimer() {
+                dots[counter].classList.remove('focus');
+                content[counter].classList.remove('fade_in');
+                counter++;
+                if (counter >= content.length) {
+                    counter = 0;
+                }
+                content[counter].classList.add('fade_in');
+                dots[counter].classList.add('focus');
+            }
+
+            function intervalManager(flag, animate, time) {
+               if(flag) {
+                 intervalID = setInterval(animate, time);
+               } else {
+                 clearInterval(intervalID);
+               }
+            }
+        }
+
+        function slide() {
+            // for (var k = 0; k < content.length; k++) {
+            //     content[k].classList.add('slide');
+            //     content[k].style = 'left:' + parseInt(width, 10)*k + 'px;';
+            // }
+            var domAppend = [];
+
+            var counter = 0,
+                dots = document.querySelectorAll('.carousel_banner_dot'),
+                intervalID;
+
+            // intervalManager(true, slideTimer, time);
+
+            // dom.addEventListener('mouseenter', function () {
+            //     intervalManager(false);
+            // });
+
+            // dom.addEventListener('mouseleave', function () {
+            //     intervalManager(true, slideTimer, time);
+            // });
+            var xDown = null;
+            var yDown = null;
+
+            function handleTouchStart(e) {
+                xDown = e.touches[0].clientX;
+                yDown = e.touches[0].clientY;
+            }
+
+            function handleTouchMove(e) {
+                // if (!xDown || !yDown) {
+                //     return;
+                // }
+
+                var xUp = e.touches[0].clientX;
+                var yUp = e.touches[0].clientY;
+
+                console.log('x', xUp);
+
+                var xDiff = xDown - xUp;
+                var yDiff = yDown - yUp;
+
+                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+                    if ( xDiff > 0 ) {
+                        /* left swipe */
+                        console.log('left swipe');
+                    } else {
+                        /* right swipe */
+                        console.log('right swipe');
+                    }
+                }
+                /* reset values */
+                // xDown = null;
+                // yDown = null;
+            }
+
+            dom.addEventListener('touchstart', handleTouchStart);
+            dom.addEventListener('touchmove', handleTouchMove);
+
+            function slideTimer() {
+                dots[counter].classList.remove('focus');
+                // content[counter].classList.remove('slide_in');
+                counter++;
+                if (counter >= content.length) {
+                    counter = 0;
+                }
+                // content[counter].classList.add('slide_in');
+                dots[counter].classList.add('focus');
+            }
+
+            function intervalManager(flag, animate, time) {
+               if(flag) {
+                 intervalID = setInterval(animate, time);
+               } else {
+                 clearInterval(intervalID);
+               }
+            }
+        }
+
+        function dom2Data(select, format) {
+            var tmpData = [];
+
+            for (var i = 0; i < select.length; i++) {
+                var tmpObj = {
+                    'node': format.node,
+                    'attributes': {},
+                    'children': {
+                        'node': format.children.node,
+                        'attributes': {}
+                    }
+                };
+                for (var j = 0; j < format.attributes.length; j++) {
+                    tmpObj['attributes'][format.attributes[j]] = select[i][format.attributes[j]];
+                }
+                for (var k = 0; k < format.attributes.length; k++) {
+                    tmpObj['children']['attributes'][format.children.attributes[k]] = select[i].children[0][format.children.attributes[k]];
+                }
+                tmpData.push(tmpObj);
+            }
+
+            return tmpData;
+        }
+
+        function data2Dom(data) {
+            var tmpData = [];
+            for (var i = 0; i < data.length; i++) {
+                var node = document.createElement(data[i].node);
+                for (var x in data[i]['attributes']) {
+                    node[x] = data[i]['attributes'][x];
+                }
+                var childNode = document.createElement(data[i]['children'].node);
+                for (var y in data[i]['children']['attributes']) {
+                    childNode[y] = data[i]['children']['attributes'][y];
+                }
+                node.appendChild(childNode);
+                tmpData.push(node);
+            }
+            return tmpData;
+        }
+    }
+    window.carouselBanner = carouselBanner;
+})();
+
+</script>
+</head>
+<body>
+<div class="carousel_banner">
+    <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+</div>
+</body>
+<script>
+
+    var option = {
+        select: document.querySelector('.carousel_banner'),
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'slide',
+    };
+    var banner = new carouselBanner(option);
+</script>
+</html>
