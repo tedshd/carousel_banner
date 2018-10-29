@@ -42,6 +42,9 @@
         position: absolute;
         top: 0;
     }
+    .carousel_banner_content.slide_in {
+        z-index: 1;
+    }
     .carousel_banner_dot_container {
         z-index: 99;
         position: absolute;
@@ -192,9 +195,35 @@
             // }
             var domAppend = [];
 
-            var counter = 0,
+            var currentCount = 0,
+                transitionAction = false,
+                slideContainer = document.createElement('div'),
+                arrow,
                 dots = document.querySelectorAll('.carousel_banner_dot'),
-                intervalID;
+                intervalID,
+                currentCountIncrease = currentCount + 1,
+                currentCountDecrease = data.length - 1,
+                currentData = [data[currentCountDecrease], data[currentCount], data[currentCountIncrease]];
+
+
+            slideContainer.style = 'overflow:hidden;' +
+                'position:absolute;' +
+                'top:0;' +
+                'left:0;' +
+                'width:' + width + ';' +
+                'height:' + height + ';';
+            dom.appendChild(slideContainer);
+            console.log(currentData);
+            var slideDom = data2Dom(currentData);
+
+            for (var k = 0; k < slideDom.length; k++) {
+                slideDom[k].style = 'position:absolute;' +
+                    'top:0;' +
+                    'width:' + width + 'px;'+
+                    'height:' + height + 'px;'+
+                    'left:' + parseInt(width, 10)*(k - 1) + 'px;';
+                slideContainer.appendChild(slideDom[k]);
+            }
 
             // intervalManager(true, slideTimer, time);
 
@@ -206,6 +235,7 @@
             //     intervalManager(true, slideTimer, time);
             // });
             var xDown = null;
+            var xDiff = null;
             var yDown = null;
 
             function handleTouchStart(e) {
@@ -221,17 +251,15 @@
                 var xUp = e.touches[0].clientX;
                 var yUp = e.touches[0].clientY;
 
-                console.log('x', xUp);
+                // console.log('x', xUp);
 
                 var xDiff = xDown - xUp;
                 var yDiff = yDown - yUp;
 
                 if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
                     if ( xDiff > 0 ) {
-                        /* left swipe */
                         console.log('left swipe');
                     } else {
-                        /* right swipe */
                         console.log('right swipe');
                     }
                 }
@@ -240,18 +268,105 @@
                 // yDown = null;
             }
 
+            function handleTouchEnd(e) {
+                console.log(e.changedTouches);
+                console.log(xDown - e.changedTouches[0].clientX);
+                if ((xDown - e.changedTouches[0].clientX) > 0) {
+                    arrow = '+';
+                    console.log('left end');
+                } else {
+                    arrow = '-';
+                    console.log('right end');
+                }
+                slideTimer(arrow);
+            }
+
             dom.addEventListener('touchstart', handleTouchStart);
             dom.addEventListener('touchmove', handleTouchMove);
+            dom.addEventListener('touchend', handleTouchEnd);
+            dom.addEventListener('transitionend', handleTransitionEnd);
 
-            function slideTimer() {
-                dots[counter].classList.remove('focus');
-                // content[counter].classList.remove('slide_in');
-                counter++;
-                if (counter >= content.length) {
-                    counter = 0;
+            function handleTransitionEnd(e) {
+                if (transitionAction) {
+                    transitionAction = false;
+                    updateData(arrow);
                 }
-                // content[counter].classList.add('slide_in');
-                dots[counter].classList.add('focus');
+            }
+            function updateData(arrow) {
+                if (arrow === '+') {
+                    slideContainer.childNodes[0].outerHTML = '';
+                    delete slideContainer.childNodes[0];
+                    var tmpArray = [data[currentCountIncrease]];
+                    var nextDom = data2Dom(tmpArray);
+                    for (var i = 0; i < nextDom.length; i++) {
+                        nextDom[i].style = 'position:absolute;' +
+                            'top:0;' +
+                            'width:' + width + 'px;'+
+                            'height:' + height + 'px;'+
+                            'left:' + parseInt(width, 10)*1 + 'px;';
+                        slideContainer.appendChild(nextDom[i]);
+                    }
+                } else {
+                    slideContainer.childNodes[data.length - 1].outerHTML = '';
+                    delete slideContainer.childNodes[data.length - 1];
+                    var tmpArray = [data[currentCountDecrease]];
+                    var prevDom = data2Dom(tmpArray);
+                    for (var i = 0; i < prevDom.length; i++) {
+                        prevDom[i].style = 'position:absolute;' +
+                            'top:0;' +
+                            'width:' + width + 'px;'+
+                            'height:' + height + 'px;'+
+                            'left:' + parseInt(width, 10)*(-1) + 'px;';
+                        slideContainer.childNodes[0].parentNode.insertBefore(prevDom[i], slideContainer.childNodes[0]);
+                    }
+                }
+            }
+
+            function slideTimer(arrow) {
+                console.log('slideTimer');
+                transitionAction = true;
+                dots[currentCount].classList.remove('focus');
+
+                arrow = arrow || '+';
+                updateCounter(arrow);
+
+                for (var k = 0; k < slideContainer.childNodes.length; k++) {
+                    var left;
+                    if (arrow === '+') {
+                        left = parseInt(width, 10)*(k - 2);
+                    } else {
+                        left = parseInt(width, 10)*(k);
+                    }
+                    slideContainer.childNodes[k].style = 'position:absolute;' +
+                        'top:0;' +
+                        'width:' + width + 'px;'+
+                        'height:' + height + 'px;'+
+                        'left:' + left + 'px;';
+                }
+                dots[currentCount].classList.add('focus');
+            }
+            function updateCounter(type) {
+                if (type === '+') {
+                    currentCount++;
+                    if (currentCount > data.length - 1) {
+                        currentCount = 0;
+                    }
+                } else {
+                    currentCount--;
+                    if (currentCount < 0) {
+                        currentCount = data.length - 1;
+                    }
+                }
+                currentCountIncrease = currentCount + 1;
+                currentCountDecrease = currentCount - 1;
+                if (currentCountIncrease > data.length - 1) {
+                    currentCountIncrease = 0;
+                }
+                if (currentCountDecrease < 0) {
+                    currentCountDecrease = data.length - 1;
+                }
+                console.log(currentCountDecrease, currentCount, currentCountIncrease);
+                console.log(data[currentCountDecrease], data[currentCount], data[currentCountIncrease]);
             }
 
             function intervalManager(flag, animate, time) {
@@ -313,7 +428,7 @@
 <div class="carousel_banner">
     <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
     <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
-    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+    <!-- <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a> -->
 </div>
 </body>
 <script>
