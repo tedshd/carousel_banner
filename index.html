@@ -189,17 +189,14 @@
         }
 
         function slide() {
-            // for (var k = 0; k < content.length; k++) {
-            //     content[k].classList.add('slide');
-            //     content[k].style = 'left:' + parseInt(width, 10)*k + 'px;';
-            // }
             var domAppend = [];
 
             var currentCount = 0,
                 transitionAction = false,
+                slideInterval = true,
                 slideContainer = document.createElement('div'),
                 arrow,
-                dots = document.querySelectorAll('.carousel_banner_dot'),
+                dots = dom.querySelectorAll('.carousel_banner_dot'),
                 intervalID,
                 currentCountIncrease = currentCount + 1,
                 currentCountDecrease = data.length - 1,
@@ -213,7 +210,6 @@
                 'width:' + width + ';' +
                 'height:' + height + ';';
             dom.appendChild(slideContainer);
-            console.log(currentData);
             var slideDom = data2Dom(currentData);
 
             for (var k = 0; k < slideDom.length; k++) {
@@ -225,7 +221,10 @@
                 slideContainer.appendChild(slideDom[k]);
             }
 
-            // intervalManager(true, slideTimer, time);
+            intervalManager(true, function () {
+                arrow = '+';
+                slideTimer(arrow);
+            }, time);
 
             // dom.addEventListener('mouseenter', function () {
             //     intervalManager(false);
@@ -241,36 +240,27 @@
             function handleTouchStart(e) {
                 xDown = e.touches[0].clientX;
                 yDown = e.touches[0].clientY;
+                intervalManager(false);
+                slideInterval = false;
             }
 
             function handleTouchMove(e) {
-                // if (!xDown || !yDown) {
-                //     return;
-                // }
-
                 var xUp = e.touches[0].clientX;
                 var yUp = e.touches[0].clientY;
-
-                // console.log('x', xUp);
 
                 var xDiff = xDown - xUp;
                 var yDiff = yDown - yUp;
 
-                if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
-                    if ( xDiff > 0 ) {
+                if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                    if (xDiff > 0) {
                         console.log('left swipe');
                     } else {
                         console.log('right swipe');
                     }
                 }
-                /* reset values */
-                // xDown = null;
-                // yDown = null;
             }
 
             function handleTouchEnd(e) {
-                console.log(e.changedTouches);
-                console.log(xDown - e.changedTouches[0].clientX);
                 if ((xDown - e.changedTouches[0].clientX) > 0) {
                     arrow = '+';
                     console.log('left end');
@@ -290,6 +280,13 @@
                 if (transitionAction) {
                     transitionAction = false;
                     updateData(arrow);
+                    if (!slideInterval) {
+                        arrow = '+';
+                        slideInterval = true;
+                        intervalManager(true, function () {
+                            slideTimer(arrow);
+                        }, time);
+                    }
                 }
             }
             function updateData(arrow) {
@@ -307,8 +304,8 @@
                         slideContainer.appendChild(nextDom[i]);
                     }
                 } else {
-                    slideContainer.childNodes[data.length - 1].outerHTML = '';
-                    delete slideContainer.childNodes[data.length - 1];
+                    slideContainer.childNodes[slideDom.length - 1].outerHTML = '';
+                    delete slideContainer.childNodes[slideDom.length - 1];
                     var tmpArray = [data[currentCountDecrease]];
                     var prevDom = data2Dom(tmpArray);
                     for (var i = 0; i < prevDom.length; i++) {
@@ -323,7 +320,6 @@
             }
 
             function slideTimer(arrow) {
-                console.log('slideTimer');
                 transitionAction = true;
                 dots[currentCount].classList.remove('focus');
 
@@ -345,6 +341,7 @@
                 }
                 dots[currentCount].classList.add('focus');
             }
+
             function updateCounter(type) {
                 if (type === '+') {
                     currentCount++;
@@ -366,7 +363,6 @@
                     currentCountDecrease = data.length - 1;
                 }
                 console.log(currentCountDecrease, currentCount, currentCountIncrease);
-                console.log(data[currentCountDecrease], data[currentCount], data[currentCountIncrease]);
             }
 
             function intervalManager(flag, animate, time) {
@@ -374,6 +370,7 @@
                  intervalID = setInterval(animate, time);
                } else {
                  clearInterval(intervalID);
+                 intervalID = null;
                }
             }
         }
@@ -428,7 +425,13 @@
 <div class="carousel_banner">
     <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
     <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
-    <!-- <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a> -->
+    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+</div>
+<hr>
+<div class="carousel_banner_b">
+    <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
 </div>
 </body>
 <script>
@@ -438,8 +441,17 @@
         time: 2000,
         width: '300px',
         height: '100px',
-        type: 'slide',
+        type: 'fade',
     };
     var banner = new carouselBanner(option);
+
+    var optionB = {
+        select: document.querySelector('.carousel_banner_b'),
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'slide',
+    };
+    var bannerB = new carouselBanner(optionB);
 </script>
 </html>
