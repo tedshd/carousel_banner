@@ -6,6 +6,10 @@
 <title>carousel_banner</title>
 <link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
 <link rel="stylesheet" href="https://meyerweb.com/eric/tools/css/reset/reset200802.css">
+
+<link rel="stylesheet" href="./carousel_banner.css">
+<script src="./carousel_banner.js"></script>
+
 <style>
 .b_1,
 .b_2,
@@ -23,415 +27,56 @@
 .b_3 {
     background: red;
 }
+.f_1,
+.f_2,
+.f_3 {
+    width: 100%;
+    display: block;
+}
+.f_1 img,
+.f_2 img,
+.f_3 img {
+    width: 100%;
+    display: block;
+}
 </style>
-<style>
-    .carousel_banner_content {
-        transition: all .3s ease-in;
-    }
-    .carousel_banner_content.fade {
-        position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-    }
-    .carousel_banner_content.fade_in {
-        z-index: 1;
-        opacity: 1;
-    }
-    .carousel_banner_content.slide {
-        position: absolute;
-        top: 0;
-    }
-    .carousel_banner_content.slide_in {
-        z-index: 1;
-    }
-    .carousel_banner_dot_container {
-        z-index: 99;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        height: 1em;
-        overflow: auto;
-    }
-    .carousel_banner_dot_container:after {
-        content: "";
-        clear: both;
-        display: table;
-    }
-    .carousel_banner_dot {
-        position: relative;
-        width: 1em;
-        height: 1em;
-        float: left;
-    }
-    .carousel_banner_dot:before {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: .5em;
-        height: .5em;
-        margin: auto;
-        border-radius: 50%;
-        background: #aaa;
-    }
-    .carousel_banner_dot.focus:before {
-        background: #0077ff;
-    }
-</style>
-<script>
-(function () {
-    function carouselBanner(option) {
-        if (!option.select) {
-            console.error('carouselBanner: not set DOM');
-            return;
-        }
 
-        var dom = option.select,
-            time = option.time || 3000,
-            width = option.width || '320px',
-            height = option.height || '50px',
-            type = option.type || 'fade',
-            source = dom.querySelectorAll('.carousel_banner_content');
-
-        dom.style = 'overflow:hidden;' +
-            'position:relative;' +
-            'width:' + width + ';' +
-            'height:' + height + ';';
-
-        if (!source.length) {
-            console.error('carouselBanner: not set carousel_banner_content class');
-            return;
-        }
-
-        var data = dom2Data(source, {
-            'node' : 'a',
-            'attributes': ['href', 'className', 'dataset'],
-            'children': {
-                'node' : 'img',
-                'attributes': ['src', 'srcset', 'className'],
-            }
-        });
-        var vDom = data2Dom(data);
-
-        dom.innerHTML = '';
-
-        initDot();
-
-        if (type === 'slide') {
-            slide();
-        } else {
-            fade();
-        }
-
-        function initDot() {
-            var dotContainer =  document.createElement('div');
-            dotContainer.setAttribute('class', 'carousel_banner_dot_container')
-            dotContainer.style = 'width:' + data.length + 'em;';
-            for (var i = 0; i < data.length; i++) {
-                var dot = document.createElement('div');
-                dot.setAttribute('class', 'carousel_banner_dot');
-                if (i === 0) {
-                    dot.setAttribute('class', 'carousel_banner_dot focus');
-                }
-                dotContainer.appendChild(dot);
-            }
-            dom.appendChild(dotContainer);
-        }
-
-        function fade() {
-
-            for (var i = 0; i < vDom.length; i++) {
-                dom.appendChild(vDom[i]);
-            }
-            var content = dom.querySelectorAll('.carousel_banner_content');
-            for (var k = 0; k < content.length; k++) {
-                if (k === 0) {
-                    content[k].classList.add('fade_in');
-                }
-                content[k].classList.add('fade');
-            }
-
-            var counter = 0,
-                dots = document.querySelectorAll('.carousel_banner_dot'),
-                intervalID;
-
-            intervalManager(true, fadeTimer, time);
-
-            dom.addEventListener('mouseenter', function () {
-                intervalManager(false);
-            });
-
-            dom.addEventListener('mouseleave', function () {
-                intervalManager(true, fadeTimer, time);
-            });
-
-            function fadeTimer() {
-                dots[counter].classList.remove('focus');
-                content[counter].classList.remove('fade_in');
-                counter++;
-                if (counter >= content.length) {
-                    counter = 0;
-                }
-                content[counter].classList.add('fade_in');
-                dots[counter].classList.add('focus');
-            }
-
-            function intervalManager(flag, animate, time) {
-               if(flag) {
-                 intervalID = setInterval(animate, time);
-               } else {
-                 clearInterval(intervalID);
-               }
-            }
-        }
-
-        function slide() {
-            var domAppend = [];
-
-            var currentCount = 0,
-                transitionAction = false,
-                slideInterval = true,
-                slideContainer = document.createElement('div'),
-                arrow,
-                dots = dom.querySelectorAll('.carousel_banner_dot'),
-                intervalID,
-                currentCountIncrease = currentCount + 1,
-                currentCountDecrease = data.length - 1,
-                currentData = [data[currentCountDecrease], data[currentCount], data[currentCountIncrease]];
-
-
-            slideContainer.style = 'overflow:hidden;' +
-                'position:absolute;' +
-                'top:0;' +
-                'left:0;' +
-                'width:' + width + ';' +
-                'height:' + height + ';';
-            dom.appendChild(slideContainer);
-            var slideDom = data2Dom(currentData);
-
-            for (var k = 0; k < slideDom.length; k++) {
-                slideDom[k].style = 'position:absolute;' +
-                    'top:0;' +
-                    'width:' + width + 'px;'+
-                    'height:' + height + 'px;'+
-                    'left:' + parseInt(width, 10)*(k - 1) + 'px;';
-                slideContainer.appendChild(slideDom[k]);
-            }
-
-            intervalManager(true, function () {
-                arrow = '+';
-                slideTimer(arrow);
-            }, time);
-
-            // dom.addEventListener('mouseenter', function () {
-            //     intervalManager(false);
-            // });
-
-            // dom.addEventListener('mouseleave', function () {
-            //     intervalManager(true, slideTimer, time);
-            // });
-            var xDown = null;
-            var xDiff = null;
-            var yDown = null;
-
-            function handleTouchStart(e) {
-                xDown = e.touches[0].clientX;
-                yDown = e.touches[0].clientY;
-                intervalManager(false);
-                slideInterval = false;
-            }
-
-            function handleTouchMove(e) {
-                var xUp = e.touches[0].clientX;
-                var yUp = e.touches[0].clientY;
-
-                var xDiff = xDown - xUp;
-                var yDiff = yDown - yUp;
-
-                if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                    if (xDiff > 0) {
-                        console.log('left swipe');
-                    } else {
-                        console.log('right swipe');
-                    }
-                }
-            }
-
-            function handleTouchEnd(e) {
-                if ((xDown - e.changedTouches[0].clientX) > 0) {
-                    arrow = '+';
-                    console.log('left end');
-                } else {
-                    arrow = '-';
-                    console.log('right end');
-                }
-                slideTimer(arrow);
-            }
-
-            dom.addEventListener('touchstart', handleTouchStart);
-            dom.addEventListener('touchmove', handleTouchMove);
-            dom.addEventListener('touchend', handleTouchEnd);
-            dom.addEventListener('transitionend', handleTransitionEnd);
-
-            function handleTransitionEnd(e) {
-                if (transitionAction) {
-                    transitionAction = false;
-                    updateData(arrow);
-                    if (!slideInterval) {
-                        arrow = '+';
-                        slideInterval = true;
-                        intervalManager(true, function () {
-                            slideTimer(arrow);
-                        }, time);
-                    }
-                }
-            }
-            function updateData(arrow) {
-                if (arrow === '+') {
-                    slideContainer.childNodes[0].outerHTML = '';
-                    delete slideContainer.childNodes[0];
-                    var tmpArray = [data[currentCountIncrease]];
-                    var nextDom = data2Dom(tmpArray);
-                    for (var i = 0; i < nextDom.length; i++) {
-                        nextDom[i].style = 'position:absolute;' +
-                            'top:0;' +
-                            'width:' + width + 'px;'+
-                            'height:' + height + 'px;'+
-                            'left:' + parseInt(width, 10)*1 + 'px;';
-                        slideContainer.appendChild(nextDom[i]);
-                    }
-                } else {
-                    slideContainer.childNodes[slideDom.length - 1].outerHTML = '';
-                    delete slideContainer.childNodes[slideDom.length - 1];
-                    var tmpArray = [data[currentCountDecrease]];
-                    var prevDom = data2Dom(tmpArray);
-                    for (var i = 0; i < prevDom.length; i++) {
-                        prevDom[i].style = 'position:absolute;' +
-                            'top:0;' +
-                            'width:' + width + 'px;'+
-                            'height:' + height + 'px;'+
-                            'left:' + parseInt(width, 10)*(-1) + 'px;';
-                        slideContainer.childNodes[0].parentNode.insertBefore(prevDom[i], slideContainer.childNodes[0]);
-                    }
-                }
-            }
-
-            function slideTimer(arrow) {
-                transitionAction = true;
-                dots[currentCount].classList.remove('focus');
-
-                arrow = arrow || '+';
-                updateCounter(arrow);
-
-                for (var k = 0; k < slideContainer.childNodes.length; k++) {
-                    var left;
-                    if (arrow === '+') {
-                        left = parseInt(width, 10)*(k - 2);
-                    } else {
-                        left = parseInt(width, 10)*(k);
-                    }
-                    slideContainer.childNodes[k].style = 'position:absolute;' +
-                        'top:0;' +
-                        'width:' + width + 'px;'+
-                        'height:' + height + 'px;'+
-                        'left:' + left + 'px;';
-                }
-                dots[currentCount].classList.add('focus');
-            }
-
-            function updateCounter(type) {
-                if (type === '+') {
-                    currentCount++;
-                    if (currentCount > data.length - 1) {
-                        currentCount = 0;
-                    }
-                } else {
-                    currentCount--;
-                    if (currentCount < 0) {
-                        currentCount = data.length - 1;
-                    }
-                }
-                currentCountIncrease = currentCount + 1;
-                currentCountDecrease = currentCount - 1;
-                if (currentCountIncrease > data.length - 1) {
-                    currentCountIncrease = 0;
-                }
-                if (currentCountDecrease < 0) {
-                    currentCountDecrease = data.length - 1;
-                }
-                console.log(currentCountDecrease, currentCount, currentCountIncrease);
-            }
-
-            function intervalManager(flag, animate, time) {
-               if(flag) {
-                 intervalID = setInterval(animate, time);
-               } else {
-                 clearInterval(intervalID);
-                 intervalID = null;
-               }
-            }
-        }
-
-        function dom2Data(select, format) {
-            var tmpData = [];
-
-            for (var i = 0; i < select.length; i++) {
-                var tmpObj = {
-                    'node': format.node,
-                    'attributes': {},
-                    'children': {
-                        'node': format.children.node,
-                        'attributes': {}
-                    }
-                };
-                for (var j = 0; j < format.attributes.length; j++) {
-                    tmpObj['attributes'][format.attributes[j]] = select[i][format.attributes[j]];
-                }
-                for (var k = 0; k < format.attributes.length; k++) {
-                    tmpObj['children']['attributes'][format.children.attributes[k]] = select[i].children[0][format.children.attributes[k]];
-                }
-                tmpData.push(tmpObj);
-            }
-
-            return tmpData;
-        }
-
-        function data2Dom(data) {
-            var tmpData = [];
-            for (var i = 0; i < data.length; i++) {
-                var node = document.createElement(data[i].node);
-                for (var x in data[i]['attributes']) {
-                    node[x] = data[i]['attributes'][x];
-                }
-                var childNode = document.createElement(data[i]['children'].node);
-                for (var y in data[i]['children']['attributes']) {
-                    childNode[y] = data[i]['children']['attributes'][y];
-                }
-                node.appendChild(childNode);
-                tmpData.push(node);
-            }
-            return tmpData;
-        }
-    }
-    window.carouselBanner = carouselBanner;
-})();
-
-</script>
 </head>
 <body>
 <div class="carousel_banner">
-    <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
-    <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
-    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+    <!-- <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a> -->
+    <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="a2" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="a3" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
 </div>
 <hr>
 <div class="carousel_banner_b">
-    <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
-    <a href="" class="carousel_banner_content b_2"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
-    <a href="" class="carousel_banner_content b_3"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_1" data-ga="mktPromote" data-label="b1" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="b2" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="b3" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+</div>
+<hr>
+<div class="carousel_banner_r">
+    <a href="" class="carousel_banner_content b_1" data-ga="mktPromote" data-label="r1" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="r2" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="r3" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+</div>
+<hr>
+<div class="carousel_banner_s">
+    <!-- <a href="" class="carousel_banner_content b_1" data-ga="mktPromote" data-label="a" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a> -->
+    <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="s1" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <!-- <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="a" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a> -->
+</div>
+<hr>
+<div class="carousel_banner_f">
+    <a href="" class="carousel_banner_content f_1" data-ga="mktPromote" data-label="r1" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content f_2" data-ga="mktPromote" data-label="r2" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content f_3" data-ga="mktPromote" data-label="r3" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
+</div>
+<hr>
+<div class="carousel_banner_fs">
+    <a href="" class="carousel_banner_content f_1" data-ga="mktPromote" data-label="r1" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_2x.png" alt=""></a>
+    <a href="" class="carousel_banner_content f_2" data-ga="mktPromote" data-label="r2" data-action="click" data-category="b"><img src="https://tedshd.io/image/add_cart_1x.png" alt=""></a>
+    <a href="" class="carousel_banner_content f_3" data-ga="mktPromote" data-label="r3" data-action="click" data-category="b"><img src="https://tedshd.io/image/view_cart_1x.png" alt=""></a>
 </div>
 </body>
 <script>
@@ -442,6 +87,15 @@
         width: '300px',
         height: '100px',
         type: 'fade',
+        dot: false,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
     };
     var banner = new carouselBanner(option);
 
@@ -451,7 +105,86 @@
         width: '300px',
         height: '100px',
         type: 'slide',
+        dot: true,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
     };
     var bannerB = new carouselBanner(optionB);
+
+    var optionB = {
+        select: document.querySelector('.carousel_banner_r'),
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'random',
+        dot: false,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerB = new carouselBanner(optionB);
+
+    var optionB = {
+        select: document.querySelector('.carousel_banner_s'),
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'random',
+        dot: false,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerB = new carouselBanner(optionB);
+
+
+    var optionFull = {
+        select: document.querySelector('.carousel_banner_f'),
+        time: 2000,
+        width: '100%',
+        type: 'random',
+        dot: false,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerFull = new carouselBanner(optionFull);
+
+    var optionFulls = {
+        select: document.querySelector('.carousel_banner_fs'),
+        time: 2000,
+        type: 'slide',
+        dot: false,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerFulls = new carouselBanner(optionFulls);
 </script>
 </html>

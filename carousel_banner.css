@@ -1,0 +1,48 @@
+.carousel_banner_content {
+    transition: all .3s ease-in;
+}
+.carousel_banner_content.fade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+.carousel_banner_content.fade_in {
+    z-index: 1;
+    opacity: 1;
+}
+.carousel_banner_dot_container {
+    z-index: 99;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 1em;
+    overflow: auto;
+}
+.carousel_banner_dot_container:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+.carousel_banner_dot {
+    position: relative;
+    width: 1em;
+    height: 1em;
+    float: left;
+}
+.carousel_banner_dot:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: .5em;
+    height: .5em;
+    margin: auto;
+    border-radius: 50%;
+    background: #aaa;
+}
+.carousel_banner_dot.focus:before {
+    background: #0077ff;
+}
