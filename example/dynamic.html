@@ -60,7 +60,6 @@ var api = new Promise(function (resolve) {
         },
         response: 'json',
         success: function (data) {
-            // console.log(data);
             resolve({
                 'status': 200,
                 'data': data,
@@ -81,7 +80,6 @@ async function init() {
 }
 
 init().then(function (argument) {
-    console.log(argument.data);
     var tmpArray = [];
     for (var i = 0; i < argument.data.length; i++) {
         var tmpObj = {
