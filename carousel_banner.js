@@ -14,25 +14,10 @@
             domEvent = option.domEvent || false,
             source = dom.querySelectorAll('.carousel_banner_content');
 
-        if (type === 'slide' &&
-            width === 'auto' &&
-            height === 'auto') {
-            var imgHeight = dom.querySelector('img'),
-            style = imgHeight.currentStyle || window.getComputedStyle(imgHeight);
-            width = style.width;
-            height = style.height;
-        }
-
-        dom.style = 'overflow:hidden;' +
-            'position:relative;' +
-            'width:' + width + ';' +
-            'height:' + height + ';';
-
         if (!source.length) {
             console.error('carouselBanner: not set carousel_banner_content class');
             return;
         }
-
 
         var data = dom2Data(source, {
             'node' : 'a',
@@ -43,32 +28,39 @@
             }
         });
 
-        if (source.length === 1) {
-            if (domEvent) {
-                domEvent(domEventDataFeed(source[0], data[0].attributes.dataset));
+        function calcImageSize() {
+            var imgHeight = dom.querySelector('img'),
+            style = imgHeight.currentStyle || window.getComputedStyle(imgHeight);
+            width = style.width;
+            height = style.height;
+        }
+
+        function calcBannerStyle() {
+            dom.style = 'overflow:hidden;' +
+                'position:relative;' +
+                'width:' + width + ';' +
+                'height:' + height + ';';
+        }
+
+        function initBanner() {
+            if (dot) {
+                initDot();
             }
-            return;
-        }
 
-        dom.innerHTML = '';
-
-        if (dot) {
-            initDot();
-        }
-
-        switch (type) {
-            case 'slide':
-                slide();
-                break;
-            case 'fade':
-                fade();
-                break;
-            case 'random':
-                random();
-                break;
-            default:
-                fade();
-                break;
+            switch (type) {
+                case 'slide':
+                    slide();
+                    break;
+                case 'fade':
+                    fade();
+                    break;
+                case 'random':
+                    random();
+                    break;
+                default:
+                    fade();
+                    break;
+            }
         }
 
         function initDot() {
@@ -218,28 +210,29 @@
 
                 if (Math.abs(xDiff) > Math.abs(yDiff)) {
                     if (xDiff > 0) {
-                        console.log('left swipe');
+                        // console.log('left swipe');
                     } else {
-                        console.log('right swipe');
+                        // console.log('right swipe');
                     }
                 }
             }
 
             function handleTouchEnd(e) {
-                console.log(xDown);
-                console.log(e.changedTouches[0].clientX);
                 if ((xDown - e.changedTouches[0].clientX) > 0) {
                     arrow = '+';
-                    console.log('left end');
+                    // console.log('left end');
                 } else {
                     arrow = '-';
-                    console.log('right end');
+                    // console.log('right end');
                 }
                 if ((xDown - e.changedTouches[0].clientX)) {
                     slideTimer(arrow);
+                } else {
+                    setTimeout(function () {
+                        slideTimer(arrow);
+                    }, time);
                 }
             }
-
 
             function handleTransitionEnd(e) {
                 if (transitionAction) {
@@ -254,6 +247,7 @@
                     }
                 }
             }
+
             function updateData(arrow) {
                 if (arrow === '+') {
                     slideContainer.childNodes[0].outerHTML = '';
@@ -404,6 +398,61 @@
             }
             return tmpData;
         }
+
+        function init() {
+            if (type === 'slide' &&
+                width === 'auto' &&
+                height === 'auto') {
+                calcImageSize();
+            }
+
+            calcBannerStyle();
+
+            if (source.length === 1) {
+                if (domEvent) {
+                    domEvent(domEventDataFeed(source[0], data[0].attributes.dataset));
+                }
+                return;
+            }
+
+            dom.innerHTML = '';
+
+            initBanner();
+        }
+
+        function resize() {
+            dom.innerHTML = '';
+            dom.style = 'overflow:hidden;' +
+                'position:relative;';
+
+            var resizeDom = data2Dom(data);
+            for (var i = 0; i < resizeDom.length; i++) {
+                // if (domEvent) {
+                //     domEvent(domEventDataFeed(resizeDom[i], data[i].attributes.dataset));
+                // }
+                dom.appendChild(resizeDom[i]);
+            }
+
+            dom.querySelector('img').addEventListener('load', function () {
+
+                calcImageSize();
+
+                calcBannerStyle();
+
+                if (source.length === 1) {
+                    if (domEvent) {
+                        domEvent(domEventDataFeed(source[0], data[0].attributes.dataset));
+                    }
+                    return;
+                }
+
+                dom.innerHTML = '';
+
+                initBanner();
+            });
+        }
+        this.init = init;
+        this.resize = resize;
     }
     window.carouselBanner = carouselBanner;
 })();

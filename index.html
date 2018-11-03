@@ -44,7 +44,6 @@
 </head>
 <body>
 <div class="carousel_banner">
-    <!-- <a href="" class="carousel_banner_content b_1"><img src="https://tedshd.io/image/banner_1@1x.jpg" srcset="https://tedshd.io/image/banner_1@2x.jpg 2x" alt=""></a> -->
     <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="a2" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_2@1x.jpg" srcset="https://tedshd.io/image/banner_2@2x.jpg 2x" alt=""></a>
     <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="a3" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_3@1x.jpg" srcset="https://tedshd.io/image/banner_3@2x.jpg 2x" alt=""></a>
 </div>
@@ -62,9 +61,7 @@
 </div>
 <hr>
 <div class="carousel_banner_s">
-    <!-- <a href="" class="carousel_banner_content b_1" data-ga="mktPromote" data-label="a" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_1@1x.jpg" srcset="https://tedshd.io/image/banner_1@2x.jpg 2x" alt=""></a> -->
     <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="s1" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_2@1x.jpg" srcset="https://tedshd.io/image/banner_2@2x.jpg 2x" alt=""></a>
-    <!-- <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="a" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_3@1x.jpg" srcset="https://tedshd.io/image/banner_3@2x.jpg 2x" alt=""></a> -->
 </div>
 <hr>
 <div class="carousel_banner_f">
@@ -98,6 +95,7 @@
         }
     };
     var banner = new carouselBanner(option);
+    banner.init();
 
     var optionB = {
         select: document.querySelector('.carousel_banner_b'),
@@ -116,6 +114,7 @@
         }
     };
     var bannerB = new carouselBanner(optionB);
+    bannerB.init();
 
     var optionB = {
         select: document.querySelector('.carousel_banner_r'),
@@ -134,6 +133,7 @@
         }
     };
     var bannerB = new carouselBanner(optionB);
+    bannerB.init();
 
     var optionB = {
         select: document.querySelector('.carousel_banner_s'),
@@ -152,6 +152,7 @@
         }
     };
     var bannerB = new carouselBanner(optionB);
+    bannerB.init();
 
 
     var optionFull = {
@@ -170,12 +171,34 @@
         }
     };
     var bannerFull = new carouselBanner(optionFull);
+    bannerFull.init();
 
 
-    var loadImgFlag = false;
-    document.querySelector('.carousel_banner_fs').querySelector('img').addEventListener('load', function() {
-        console.log('loaded');
-        loadImgFlag = true;
+    var bannerFulls = null;
+    var bannerBannerImage = false;
+
+    document.querySelector('.carousel_banner_fs').querySelector('img').addEventListener('load', function(e) {
+        console.log(e);
+        console.log('load');
+        bannerBannerImage = true;
+        initFullBanner();
+    });
+
+    window.addEventListener('resize', function(e) {
+        console.log(e);
+        console.log('resize');
+        bannerFulls.resize(document.querySelector('.carousel_banner_fs'));
+    });
+
+    setTimeout(function () {
+        if (!bannerBannerImage) {
+            bannerBannerImage = true;
+            initFullBanner();
+        }
+    }, 2000);
+
+    function initFullBanner() {
+        console.log('initFullBanner');
         var optionFulls = {
             select: document.querySelector('.carousel_banner_fs'),
             time: 2000,
@@ -190,26 +213,8 @@
                 });
             }
         };
-        var bannerFulls = new carouselBanner(optionFulls);
-    });
-    setTimeout(function () {
-        if (!loadImgFlag) {
-            var optionFulls = {
-                select: document.querySelector('.carousel_banner_fs'),
-                time: 2000,
-                type: 'slide',
-                dot: false,
-                domEvent: function (data) {
-                    var dom = data.dom;
-                    dom.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        console.log(data);
-                        // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
-                    });
-                }
-            };
-            var bannerFulls = new carouselBanner(optionFulls);
-        }
-    }, 1000);
+        bannerFulls = new carouselBanner(optionFulls);
+        bannerFulls.init();
+    }
 </script>
 </html>
