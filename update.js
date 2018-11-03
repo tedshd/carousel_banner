@@ -5,6 +5,8 @@
  * @version $Id$
  */
 
+// this file is test data count
+
 var data = ['a', 'b', 'c'];
 
 var data = ['a', 'b'];
