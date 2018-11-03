@@ -139,13 +139,27 @@
 
             intervalManager(true, fadeTimer, time);
 
-            dom.addEventListener('mouseenter', function () {
-                intervalManager(false);
-            });
+            if ('ontouchstart' in document.documentElement) {
+                dom.addEventListener('touchstart', function (e) {
+                    console.log('touchstart');
+                    intervalManager(false);
+                });
+                dom.addEventListener('touchend', function (e) {
+                    console.log('touchend');
+                    intervalManager(true, fadeTimer, time);
+                });
+            } else {
+                dom.addEventListener('mouseenter', function (e) {
+                    console.log('mouseenter');
+                    intervalManager(false);
+                });
 
-            dom.addEventListener('mouseleave', function () {
-                intervalManager(true, fadeTimer, time);
-            });
+                dom.addEventListener('mouseleave', function (e) {
+                    console.log('mouseleave');
+                    intervalManager(true, fadeTimer, time);
+                });
+            }
+
 
             function fadeTimer() {
                 if (dots.length) {
