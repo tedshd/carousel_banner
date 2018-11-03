@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>carousel_banner</title>
+<link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+<link rel="stylesheet" href="https://meyerweb.com/eric/tools/css/reset/reset200802.css">
+<script src="https://tedshd.io/lib/ajax/ajax.js"></script>
+<link rel="stylesheet" href="./../carousel_banner.css">
+<script src="./../carousel_banner.js"></script>
+
+<style>
+.b_1,
+.b_2,
+.b_3 {
+    width: 300px;
+    height: 100px;
+    display: block;
+}
+.b_1 {
+    background: pink;
+}
+.b_2 {
+    background: green;
+}
+.b_3 {
+    background: red;
+}
+.f_1,
+.f_2,
+.f_3 {
+    width: 100%;
+    display: block;
+}
+.f_1 img,
+.f_2 img,
+.f_3 img {
+    width: 100%;
+    display: block;
+}
+</style>
+
+</head>
+<body>
+
+<h1>carousel banner demo</h1>
+<h2>api data 3 banner slide</h2>
+<div class="carousel_banner_fd">
+</div>
+
+</body>
+<script>
+
+var api = new Promise(function (resolve) {
+    ajax({
+        method: 'GET',
+        url: 'https://tedshd.io/demo/php/promote.php',
+        data: {
+        },
+        response: 'json',
+        success: function (data) {
+            // console.log(data);
+            resolve({
+                'status': 200,
+                'data': data,
+            });
+        },
+        error: function(status, data) {
+            resolve({
+                'status': status,
+                'data': data,
+            });
+        }
+    });
+});
+
+async function init() {
+    let res = await api;
+    return res;
+}
+
+init().then(function (argument) {
+    console.log(argument.data);
+    var tmpArray = [];
+    for (var i = 0; i < argument.data.length; i++) {
+        var tmpObj = {
+            'node': 'a',
+            'attributes': {
+                'href': argument.data[i]['link'],
+                'className': 'carousel_banner_content',
+                'dataset': {},
+                'target': '',
+            },
+            'children': {
+                'node': 'img',
+                'attributes': {
+                    'src': argument.data[i]['image'],
+                    'srcset': argument.data[i]['image_2x'] + ' 2x',
+                    'className': ''
+                },
+            }
+        };
+
+        tmpArray.push(tmpObj);
+    }
+    var optionB = {
+        select: document.querySelector('.carousel_banner_fd'),
+        dataFeed: tmpArray,
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'slide',
+        dot: true,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerB = new carouselBanner(optionB);
+    bannerB.init();
+});
+
+</script>
+</html>

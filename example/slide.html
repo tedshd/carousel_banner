@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>carousel_banner</title>
+<link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+<link rel="stylesheet" href="https://meyerweb.com/eric/tools/css/reset/reset200802.css">
+
+<link rel="stylesheet" href="./../carousel_banner.css">
+<script src="./../carousel_banner.js"></script>
+
+<style>
+.b_1,
+.b_2,
+.b_3 {
+    width: 300px;
+    height: 100px;
+    display: block;
+}
+.b_1 {
+    background: pink;
+}
+.b_2 {
+    background: green;
+}
+.b_3 {
+    background: red;
+}
+.f_1,
+.f_2,
+.f_3 {
+    width: 100%;
+    display: block;
+}
+.f_1 img,
+.f_2 img,
+.f_3 img {
+    width: 100%;
+    display: block;
+}
+</style>
+
+</head>
+<body>
+
+<h1>carousel banner demo</h1>
+<h2>3 banner slide effect show dot</h2>
+<div class="carousel_banner_b">
+    <a href="" class="carousel_banner_content b_1" data-ga="mktPromote" data-label="b1" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_1@1x.jpg" srcset="https://tedshd.io/image/banner_1@2x.jpg 2x" alt=""></a>
+    <a href="" class="carousel_banner_content b_2" data-ga="mktPromote" data-label="b2" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_2@1x.jpg" srcset="https://tedshd.io/image/banner_2@2x.jpg 2x" alt=""></a>
+    <a href="" class="carousel_banner_content b_3" data-ga="mktPromote" data-label="b3" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_3@1x.jpg" srcset="https://tedshd.io/image/banner_3@2x.jpg 2x" alt=""></a>
+</div>
+<hr>
+<h2>3 banner full size slide</h2>
+<div class="carousel_banner_fs">
+    <a href="" class="carousel_banner_content f_1" data-ga="mktPromote" data-label="r1" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_1@1x.jpg" srcset="https://tedshd.io/image/banner_1@2x.jpg 2x" alt=""></a>
+    <a href="" class="carousel_banner_content f_2" data-ga="mktPromote" data-label="r2" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_2@1x.jpg" srcset="https://tedshd.io/image/banner_2@2x.jpg 2x" alt=""></a>
+    <a href="" class="carousel_banner_content f_3" data-ga="mktPromote" data-label="r3" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_3@1x.jpg" srcset="https://tedshd.io/image/banner_3@2x.jpg 2x" alt=""></a>
+</div>
+
+</body>
+<script>
+
+    var optionB = {
+        select: document.querySelector('.carousel_banner_b'),
+        time: 2000,
+        width: '300px',
+        height: '100px',
+        type: 'slide',
+        dot: true,
+        domEvent: function (data) {
+            var dom = data.dom;
+            dom.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log(data);
+                // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+            });
+        }
+    };
+    var bannerB = new carouselBanner(optionB);
+    bannerB.init();
+
+    var bannerFulls = null;
+    var bannerBannerImage = false;
+
+    document.querySelector('.carousel_banner_fs').querySelector('img').addEventListener('load', function(e) {
+        console.log(e);
+        console.log('load');
+        bannerBannerImage = true;
+        initFullBanner();
+    });
+
+    window.addEventListener('resize', function(e) {
+        console.log(e);
+        console.log('resize');
+        bannerFulls.resize(document.querySelector('.carousel_banner_fs'));
+    });
+
+    setTimeout(function () {
+        if (!bannerBannerImage) {
+            bannerBannerImage = true;
+            initFullBanner();
+        }
+    }, 2000);
+
+    function initFullBanner() {
+        console.log('initFullBanner');
+        var optionFulls = {
+            select: document.querySelector('.carousel_banner_fs'),
+            time: 2000,
+            type: 'slide',
+            dot: false,
+            domEvent: function (data) {
+                var dom = data.dom;
+                dom.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log(data);
+                    // ga(data.ga + '.send', 'event', data.category, data.action, data.label, {nonInteraction:true});
+                });
+            }
+        };
+        bannerFulls = new carouselBanner(optionFulls);
+        bannerFulls.init();
+    }
+</script>
+</html>

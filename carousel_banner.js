@@ -1,4 +1,28 @@
 (function () {
+    /**
+     * [carouselBanner description]
+     * @param  {[type]} option [description]
+     * datafeed format
+[
+    {
+        'node': 'a',
+        'attributes': {
+            'href': '',
+            'className': '',
+            'dataset': {},
+            'target': '',
+        },
+        'children': {
+            'node': 'img',
+            'attributes': {
+                'src': '',
+                'srcset': '',
+                'className': ''
+            },
+        }
+    }
+]
+     */
     function carouselBanner(option) {
         if (!option.select) {
             console.error('carouselBanner: not set DOM');
@@ -12,21 +36,29 @@
             type = option.type || 'fade',
             dot = option.dot || false,
             domEvent = option.domEvent || false,
+            dataFeed = option.dataFeed || false,
             source = dom.querySelectorAll('.carousel_banner_content');
 
-        if (!source.length) {
+        if (!source.length && !dataFeed) {
             console.error('carouselBanner: not set carousel_banner_content class');
             return;
         }
 
-        var data = dom2Data(source, {
-            'node' : 'a',
-            'attributes': ['href', 'className', 'dataset', 'target'],
-            'children': {
-                'node' : 'img',
-                'attributes': ['src', 'srcset', 'className'],
-            }
-        });
+        var data;
+
+        if (dataFeed) {
+            data = dataFeed;
+        } else {
+            data = dom2Data(source, {
+                'node' : 'a',
+                'attributes': ['href', 'className', 'dataset', 'target'],
+                'children': {
+                    'node' : 'img',
+                    'attributes': ['src', 'srcset', 'className'],
+                }
+            });
+        }
+
 
         function calcImageSize() {
             var imgHeight = dom.querySelector('img'),
@@ -221,7 +253,8 @@
                 if ((xDown - e.changedTouches[0].clientX) > 0) {
                     arrow = '+';
                     // console.log('left end');
-                } else {
+                }
+                if ((xDown - e.changedTouches[0].clientX) < 0) {
                     arrow = '-';
                     // console.log('right end');
                 }
@@ -368,7 +401,7 @@
                 for (var j = 0; j < format.attributes.length; j++) {
                     tmpObj['attributes'][format.attributes[j]] = select[i][format.attributes[j]];
                 }
-                for (var k = 0; k < format.attributes.length; k++) {
+                for (var k = 0; k < format.children.attributes.length; k++) {
                     tmpObj['children']['attributes'][format.children.attributes[k]] = select[i].children[0][format.children.attributes[k]];
                 }
                 tmpData.push(tmpObj);
@@ -427,9 +460,6 @@
 
             var resizeDom = data2Dom(data);
             for (var i = 0; i < resizeDom.length; i++) {
-                // if (domEvent) {
-                //     domEvent(domEventDataFeed(resizeDom[i], data[i].attributes.dataset));
-                // }
                 dom.appendChild(resizeDom[i]);
             }
 
