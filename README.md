@@ -24,8 +24,6 @@
 
 ## TODO
 
-* init 時 UI 的處理
-
 * 轉場效果結束時的 callback
 
 ## Usage

@@ -1,3 +1,10 @@
+.carousel_banner_transparent {
+    transition: all .3s ease-in;
+    opacity: 0;
+}
+.carousel_banner_transparent.carousel_banner_transparent_show {
+    opacity: 1;
+}
 .carousel_banner_content {
     transition: all .3s ease-in;
 }

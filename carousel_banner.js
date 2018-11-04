@@ -44,6 +44,8 @@
             return;
         }
 
+        dom.classList.add('carousel_banner_transparent');
+
         var data;
 
         if (dataFeed) {
@@ -58,7 +60,6 @@
                 }
             });
         }
-
 
         function calcImageSize() {
             var imgHeight = dom.querySelector('img'),
@@ -93,6 +94,7 @@
                     fade();
                     break;
             }
+            dom.classList.add('carousel_banner_transparent_show');
         }
 
         function initDot() {
@@ -463,7 +465,7 @@
             initBanner();
         }
 
-        function resize(widthResize, height) {
+        function resize(widthResize, heightResize) {
             dom.innerHTML = '';
             dom.style = 'overflow:hidden;' +
                 'position:relative;';
