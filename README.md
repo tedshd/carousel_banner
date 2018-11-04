@@ -22,10 +22,6 @@
 
 * 向下相容? 2018 年了誰管這個東西拉
 
-## TODO
-
-* 轉場效果結束時的 callback
-
 ## Usage
 
 引入 `carousel_banner.css` 和 `carousel_banner.js`
@@ -64,14 +60,15 @@ banner.init();
 
 |key|type|required|description|example|
 |---|---|---|---|---|
-| select   | DOM      | required | banner container                        | document.querySelector('#banner') |
-| dataFeed | Array    | option   | API data feed                           | see data format                   |
-| time     | Number   | option   | fade or slide action time(milliseconds) | 2000                              |
-| width    | String   | option   | banner width                            | '300px'                           |
-| height   | String   | option   | banner height                           | '100px'                           |
-| type     | String   | required | transition type                         | 'fade', 'random', 'slide'         |
-| dot      | Boolean  | option   | dot show current banner                 | true, false                       |
-| domEvent | Function | option   | handle dom callback                     | see example                       |
+| select         | DOM      | required | banner container                        | document.querySelector('#banner') |
+| dataFeed       | Array    | option   | API data feed                           | see data format                   |
+| time           | Number   | option   | fade or slide action time(milliseconds) | 2000                              |
+| width          | String   | option   | banner width                            | '300px'                           |
+| height         | String   | option   | banner height                           | '100px'                           |
+| type           | String   | required | transition type                         | 'fade', 'random', 'slide'         |
+| dot            | Boolean  | option   | dot show current banner                 | true, false                       |
+| domEvent       | Function | option   | handle dom callback                     | see example                       |
+| bannerCallback | Function | option   | handle current banner show callback     | see example                       |
 
 * dataFeed format
 
@@ -108,6 +105,9 @@ var optionB = {
     height: '100px',
     type: 'slide',
     dot: true,
+    bannerCallback: function (data) {
+        console.log(data);
+    },
     domEvent: function (data) {
         var dom = data.dom;
         dom.addEventListener('click', function (e) {
