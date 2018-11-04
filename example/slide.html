@@ -29,13 +29,15 @@
 }
 .f_1,
 .f_2,
-.f_3 {
+.f_3,
+.f_4 {
     width: 100%;
     display: block;
 }
 .f_1 img,
 .f_2 img,
-.f_3 img {
+.f_3 img,
+.f_4 img {
     width: 100%;
     display: block;
 }
@@ -57,6 +59,7 @@
     <a href="" class="carousel_banner_content f_1" data-ga="mktPromote" data-label="r1" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_1@1x.jpg" srcset="https://tedshd.io/image/banner_1@2x.jpg 2x" alt=""></a>
     <a href="" class="carousel_banner_content f_2" data-ga="mktPromote" data-label="r2" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_2@1x.jpg" srcset="https://tedshd.io/image/banner_2@2x.jpg 2x" alt=""></a>
     <a href="" class="carousel_banner_content f_3" data-ga="mktPromote" data-label="r3" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_3@1x.jpg" srcset="https://tedshd.io/image/banner_3@2x.jpg 2x" alt=""></a>
+    <a href="" class="carousel_banner_content f_4" data-ga="mktPromote" data-label="r4" data-action="click" data-category="b"><img src="https://tedshd.io/image/banner_4@1x.jpg" srcset="https://tedshd.io/image/banner_4@2x.jpg 2x" alt=""></a>
 </div>
 
 </body>
@@ -106,6 +109,9 @@
             time: 2000,
             type: 'slide',
             dot: false,
+            bannerCallback: function (data) {
+                console.log('bannerCallback', data);
+            },
             domEvent: function (data) {
                 var dom = data.dom;
                 dom.addEventListener('click', function (e) {

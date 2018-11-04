@@ -36,6 +36,7 @@
             type = option.type || 'fade',
             dot = option.dot || false,
             domEvent = option.domEvent || false,
+            bannerCallback = option.bannerCallback || false,
             dataFeed = option.dataFeed || false,
             source = dom.querySelectorAll('.carousel_banner_content');
 
@@ -158,6 +159,11 @@
                 });
             }
 
+            dom.addEventListener('transitionend', function (e) {
+                if (bannerCallback) {
+                    bannerCallback(domEventDataFeed(fadeDom[counter], data[counter].attributes.dataset));
+                }
+            });
 
             function fadeTimer() {
                 if (dots.length) {
@@ -215,6 +221,10 @@
                     domEvent(domEventDataFeed(slideDom[k], currentData[k].attributes.dataset));
                 }
                 slideContainer.appendChild(slideDom[k]);
+            }
+
+            if (bannerCallback) {
+                bannerCallback(domEventDataFeed(slideDom[1], currentData[1].attributes.dataset));
             }
 
             intervalManager(true, function () {
@@ -283,6 +293,9 @@
                 if (transitionAction) {
                     transitionAction = false;
                     updateData(arrow);
+                    if (bannerCallback) {
+                        bannerCallback(domEventDataFeed(data2Dom([data[currentCount]])[0], data[currentCount].attributes.dataset));
+                    }
                     if (!slideInterval) {
                         arrow = '+';
                         slideInterval = true;
@@ -396,6 +409,9 @@
                 domEvent(domEventDataFeed(randomDom[rand], data[rand].attributes.dataset));
             }
             dom.appendChild(randomDom[rand]);
+            if (bannerCallback) {
+                bannerCallback(domEventDataFeed(randomDom[rand], data[rand].attributes.dataset));
+            }
         }
 
         function dom2Data(select, format) {
@@ -457,6 +473,9 @@
                 if (domEvent) {
                     domEvent(domEventDataFeed(source[0], data[0].attributes.dataset));
                 }
+                if (bannerCallback) {
+                    bannerCallback(domEventDataFeed(source[0], data[0].attributes.dataset));
+                }
                 return;
             }
 
@@ -491,6 +510,9 @@
                 if (source.length === 1) {
                     if (domEvent) {
                         domEvent(domEventDataFeed(source[0], data[0].attributes.dataset));
+                    }
+                    if (bannerCallback) {
+                        bannerCallback(domEventDataFeed(source[0], data[0].attributes.dataset));
                     }
                     return;
                 }
