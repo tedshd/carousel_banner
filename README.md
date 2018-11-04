@@ -1,6 +1,6 @@
 # carousel_banner
 
-滑動式 Banner 套件
+Banner 輪播套件
 
 ## Feature
 
