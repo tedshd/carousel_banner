@@ -243,9 +243,20 @@
             var xDiff = null;
             var yDown = null;
 
-            dom.addEventListener('touchstart', handleTouchStart);
-            dom.addEventListener('touchmove', handleTouchMove);
-            dom.addEventListener('touchend', handleTouchEnd);
+            if ('ontouchstart' in document.documentElement) {
+                dom.addEventListener('touchstart', handleTouchStart);
+                dom.addEventListener('touchmove', handleTouchMove);
+                dom.addEventListener('touchend', handleTouchEnd);
+            } else {
+                dom.addEventListener('mouseenter', function (e) {
+                    intervalManager(false);
+                });
+                dom.addEventListener('mouseleave', function (e) {
+                    setTimeout(function () {
+                        slideTimer(arrow);
+                    }, time);
+                });
+            }
             dom.addEventListener('transitionend', handleTransitionEnd);
 
             function handleTouchStart(e) {
