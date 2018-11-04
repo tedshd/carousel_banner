@@ -463,10 +463,17 @@
             initBanner();
         }
 
-        function resize() {
+        function resize(widthResize, height) {
             dom.innerHTML = '';
             dom.style = 'overflow:hidden;' +
                 'position:relative;';
+
+            if (widthResize) {
+                width = widthResize;
+            }
+            if (heightResize) {
+                height = heightResize;
+            }
 
             var resizeDom = data2Dom(data);
             for (var i = 0; i < resizeDom.length; i++) {
