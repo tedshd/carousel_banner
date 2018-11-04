@@ -250,11 +250,10 @@
             } else {
                 dom.addEventListener('mouseenter', function (e) {
                     intervalManager(false);
+                    slideInterval = false;
                 });
                 dom.addEventListener('mouseleave', function (e) {
-                    setTimeout(function () {
-                        slideTimer(arrow);
-                    }, time);
+                    slideTimer('+');
                 });
             }
             dom.addEventListener('transitionend', handleTransitionEnd);
