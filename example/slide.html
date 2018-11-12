@@ -86,15 +86,29 @@
 
     var bannerFulls = null;
     var bannerBannerImage = false;
+    var currentOrientation = orientationType();
 
     document.querySelector('.carousel_banner_fs').querySelector('img').addEventListener('load', function(e) {
         bannerBannerImage = true;
         initFullBanner();
     });
 
-    window.addEventListener('resize', function(e) {
-        bannerFulls.resize(document.querySelector('.carousel_banner_fs'));
+    window.addEventListener('resize', function() {
+        console.log('resize');
+        if (currentOrientation !== orientationType()) {
+            currentOrientation = orientationType();
+            bannerFulls.resize(document.querySelector('.carousel_banner_fs'));
+        }
     });
+
+    function orientationType() {
+        if ((window.innerHeight / window.innerWidth) > 1) {
+            return 'portrait';
+        }
+        if ((window.innerHeight / window.innerWidth) < 1) {
+            return 'landscape';
+        }
+    }
 
     setTimeout(function () {
         if (!bannerBannerImage) {
